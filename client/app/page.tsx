@@ -19,10 +19,20 @@ export default function Home() {
   const fetchTodos = async () => {
     try {
       const res = await fetch('http://localhost:3001/todos');
+      if (!res.ok) {
+        throw new Error('Failed to fetch todos');
+      }
       const data = await res.json();
-      setTodos(data);
+      // בדיקה: ודא שהנתונים הם מערך לפני עדכון ה-state
+      if (Array.isArray(data)) {
+        setTodos(data);
+      } else {
+        console.error('Data received is not an array:', data);
+        setTodos([]); // במקרה של שגיאה, נאתחל למערך ריק
+      }
     } catch (error) {
       console.error('Error fetching todos:', error);
+      setTodos([]); // במקרה של שגיאה, נאתחל למערך ריק
     }
   };
 
@@ -31,13 +41,16 @@ export default function Home() {
     if (!newTodo.trim()) return;
 
     try {
-      await fetch('http://localhost:3001/todos', {
+      const res = await fetch('http://localhost:3001/todos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ title: newTodo }),
       });
+      if (!res.ok) {
+        throw new Error('Failed to create todo');
+      }
       setNewTodo('');
       fetchTodos(); // רענון הרשימה
     } catch (error) {
@@ -61,7 +74,7 @@ export default function Home() {
       </form>
 
       <ul style={{ listStyle: 'none', padding: 0 }}>
-        {todos.map((todo) => (
+        {Array.isArray(todos) && todos.map((todo) => (
           <li key={todo._id} style={{ borderBottom: '1px solid #ccc', padding: '10px 0' }}>
             {todo.title}
           </li>
