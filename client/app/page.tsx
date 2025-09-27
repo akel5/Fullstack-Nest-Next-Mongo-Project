@@ -1,85 +1,19 @@
-'use client';
+// client/app/page.tsx
+import Link from 'next/link';
 
-import { useState, useEffect } from 'react';
-
-type Todo = {
-  _id: string;
-  title: string;
-  completed: boolean;
-};
-
-export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState('');
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  const fetchTodos = async () => {
-    try {
-      const res = await fetch('http://localhost:3001/todos');
-      if (!res.ok) {
-        throw new Error('Failed to fetch todos');
-      }
-      const data = await res.json();
-      // בדיקה: ודא שהנתונים הם מערך לפני עדכון ה-state
-      if (Array.isArray(data)) {
-        setTodos(data);
-      } else {
-        console.error('Data received is not an array:', data);
-        setTodos([]); // במקרה של שגיאה, נאתחל למערך ריק
-      }
-    } catch (error) {
-      console.error('Error fetching todos:', error);
-      setTodos([]); // במקרה של שגיאה, נאתחל למערך ריק
-    }
-  };
-
-  const handleCreateTodo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTodo.trim()) return;
-
-    try {
-      const res = await fetch('http://localhost:3001/todos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title: newTodo }),
-      });
-      if (!res.ok) {
-        throw new Error('Failed to create todo');
-      }
-      setNewTodo('');
-      fetchTodos(); // רענון הרשימה
-    } catch (error) {
-      console.error('Error creating todo:', error);
-    }
-  };
-
+export default function HomePage() {
   return (
-    <main style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>Todo App</h1>
-
-      <form onSubmit={handleCreateTodo}>
-        <input
-          type="text"
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-          placeholder="הוסף משימה חדשה"
-          style={{ width: '80%', padding: '10px', marginRight: '10px' }}
-        />
-        <button type="submit" style={{ padding: '10px' }}>הוסף</button>
-      </form>
-
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {Array.isArray(todos) && todos.map((todo) => (
-          <li key={todo._id} style={{ borderBottom: '1px solid #ccc', padding: '10px 0' }}>
-            {todo.title}
-          </li>
-        ))}
-      </ul>
+    <main style={{ padding: '40px', textAlign: 'center' }}>
+      <h1>ברוכים הבאים למערכת הניהול המשולבת</h1>
+      <p>בחרו את סוג המשימות שתרצו לנהל:</p>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
+        <Link href="/todos" style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', textDecoration: 'none', color: 'black' }}>
+          <h2>רשימת משימות (Todo)</h2>
+        </Link>
+        <Link href="/bugs" style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', textDecoration: 'none', color: 'black' }}>
+          <h2>ניהול באגים (BugTracker)</h2>
+        </Link>
+      </div>
     </main>
   );
 }
